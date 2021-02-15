@@ -27,54 +27,52 @@ final class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        timerWork()
         colorView.layer.cornerRadius = 10
         
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super .viewDidAppear(animated)
-        updateColor()
+    private func timerWork() {
+        Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] (timer) in
+            self?.updateColor()
+        }
     }
     
     private func updateColor() {
-        Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { (timer) in
-            
-            self.updateColorTime -= 1
-            self.infoLabel.text = "\(self.constInfo)\(String(self.updateColorTime))"
-            
-            
-            if self.updateColorTime < 0 {
-                self.infoLabel.text = "\(self.constInfo)0"
+        
+        updateColorTime -= 1
+        infoLabel.text = "\(constInfo)\(String(updateColorTime))"
+        
+        if updateColorTime < 0 {
+            infoLabel.text = "\(constInfo)0"
+        }
+        
+        if updateColorTime == 0 {
+
+            UIView.animate(withDuration: 1) {
+                self.colorView.transform = CGAffineTransform(scaleX: 0.001, y: 0.001)
+            } completion: { (bool) in
+                UIView.animate(withDuration: 1) {
+                    self.colorView.transform = .identity
+                }
             }
             
-            if self.updateColorTime == 0 {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                self.colorView.backgroundColor = self.colors[self.iteration]
+            }
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                self.updateColorTime = 10
+                self.infoLabel.text = "\(self.constInfo)\(String(self.updateColorTime))"
+            }
+            
+            if iteration == colors.count - 1 {
+                iteration = 0
+            } else {
+                iteration += 1
+            }
 
-                UIView.animate(withDuration: 1) {
-                    self.colorView.transform = CGAffineTransform(scaleX: 0.001, y: 0.001)
-                } completion: { (bool) in
-                    UIView.animate(withDuration: 1) {
-                        self.colorView.transform = .identity
-                    }
-                }
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    self.colorView.backgroundColor = self.colors[self.iteration]
-                }
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                    self.updateColorTime = 10
-                    self.infoLabel.text = "\(self.constInfo)\(String(self.updateColorTime))"
-                }
-                
-                if self.iteration == self.colors.count - 1 {
-                    self.iteration = 0
-                } else {
-                    self.iteration += 1
-                }
-
-           }
-        }
+       }
     }
     
 }
